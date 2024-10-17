@@ -10,12 +10,7 @@
 #include <unordered_map>
 #include <sstream>
 
-// Gate 结构
-/*
-* a = c & !d;
-* gate需要多个，对应每个name
-* 需要gateout，多个gatein， 
-*/
+
 
 enum class GateType {
     AND,
@@ -26,48 +21,89 @@ enum class GateType {
 class Gate
 {
 public:
-	//Gate();
-	//~Gate();
-    void addInput(const std::string& input);
-    void setOutput(const std::string& output);
-    std::vector<std::string> getInputs(Gate gate) const;
-    std::string getOutput(Gate gate) const;
+    Gate() {};
+    ~Gate() {};
+   
+    bool operator==(const Gate& other) const;
+    Gate(const Gate& other) = default;
+    Gate& operator=(const Gate& other) = default;
 
-    bool isScheduled() const;
+   //设置私有成员变量的方法
     void setScheduledCycle(int cycle);
-    int  getScheduledCycle() const;
+    void setGateid(const std::string& id) { gateId = id; }
+    void addInput(const std::string& input) { gateInputs.push_back(input); }
+    void setOutput(const std::string& output) { gateOutput = output; }
+    void addExpression(const std::string& expr) { gateExpressions.push_back(expr); }
+    void setType(GateType t) { type = t; }
+    void setScheduled(bool scheduled) { Scheduled = scheduled; }
 
-    std::string gateid; // 唯一标识符name
-    std::string gateoutput;//a
-    std::vector<std::string> gateinputs;//c d
-    std::vector<std::string> gateexpressions;//c & !d
+
+    //获取私有成员变量的方法
+    std::string getOutput() const {
+		return gateOutput;
+	}
+    std::string getGateId() const {
+		return gateId;
+	}
+    std::vector<std::string> getInputs() const {
+        return gateInputs;
+    }
+    std::vector<std::string> getExpressions() const {
+		return gateExpressions;
+	}
+    GateType getType() const {
+        return type;
+    }
+    int getScheduledCycle() const {
+		return scheduledCycle;
+	}
+    bool isScheduled() const {
+        return Scheduled;
+    }
+
+private:
+    std::string gateId; // 唯一标识符name
+    std::string gateOutput;//
+    std::vector<std::string> gateInputs;//c d
+    std::vector<std::string> gateExpressions;//c & !d
     GateType type;//& ! |
     int scheduledCycle = -1;//第n个
     bool Scheduled = false;
-private:
-
 };
 
-//name 后驱/输出 type 符号
-/*
-Gate::Gate()
-{
-}
-
-Gate::~Gate()
-{
-} 
-*/
+class Scheduler;//前向声明
 
 class Circuit {
 public:
     void addInput(const std::string& input);
     void addOutput(const std::string& output);
     void addGate(const Gate& gate);
-    std::vector<Gate>& getGates();
+    void setModuleName(const std::string& name);
+    void addWire(const std::string& wire);
+
+    std::vector<Gate>& getGates() ;
     std::vector<std::string> getInputs() const;
     std::vector<std::string> getOutputs() const;
+    std::string getModuleName() const;
+    std::vector<std::string> getWires() const;
 
+    //通过circuit获取最大cycle数
+    int getMaxScheduledCycle() const;
+   
+    //打印输出-直接根据circuit打印
+    void printSchedule(Circuit& circuit, Scheduler& scheduler) const ;
+    void printGatesOfType(int cycle, GateType type,Scheduler& scheduler) const;
+
+    //通过输出的string找到对应的gate
+    const Gate& findGateByOutput(const std::string& outputName) const {
+        for (const Gate& gate : gates) {
+            if (gate.getOutput() == outputName) {
+                return gate;
+            }
+        }
+        throw std::runtime_error("Gate not found: " + outputName);
+    }
+private:
     std::vector<std::string> inputs;
     std::vector<std::string> outputs;
     std::vector<Gate> gates;//TODO
@@ -75,39 +111,22 @@ public:
     std::vector<std::string> wires;
     std::unordered_map<std::string, Gate> gateMap;//name gate useless
 
-private:
-
 };
 
 class Scheduler {
 public:
     virtual void schedule(Circuit& circuit) = 0;
-    virtual void printSchedule() const = 0;
+    //virtual void printSchedule(Circuit& circuit) const = 0;
+    std::unordered_map<int, std::vector<Gate*>>& getScheduledGatesWithCycles()  {
+		return scheduledGatesWithCycles;
+	}
+private:
+    std::unordered_map<int, std::vector<Gate*>> scheduledGatesWithCycles;//用于存储已经被调度的门，每个键值对表示一个周期的门
 };
-
-/*
-struct Gate{
-
-    std::string gateid; // 唯一标识符
-    std::string gateoutput;//a
-    std::vector<std::string> gateinputs;//c d
-    std::vector<std::string> gateexpressions;//c & !d
-};
-
-struct MyVerilog {
-    std::string moduleName;
-    std::vector<std::string> inputs;
-    std::vector<std::string> outputs;
-    std::vector<std::string> wires;
-    std::vector<Gate> gates;
-    std::unordered_map<std::string, Gate> gateMap;
-};
-
-*/
 
 // Function declarations
 void parseBLIF(const std::string& filename, Circuit& verilog);
-void writeVerilog(const std::string& filename, const Circuit& verilog);
+void writeVerilog(const std::string& filename,  Circuit& verilog);
 
 #endif // MYVERILOG_H
 
