@@ -4,23 +4,21 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include"myVerilog.h"
+#include"Circuit.h"
 
 
 class ASAPScheduler : public Scheduler {
 public:
     bool areAllPredecessorsScheduled(const Gate& gate,const Circuit &circuit) const;
-    int getMaxPredecessorCycle(const Gate& gate, const Circuit& circuit) const;
     void schedule(Circuit& circuit) override;
-    void printSchedule() const override;
+    //void printSchedule(Circuit& circuit) const override;
+    //void printGatesOfType(int cycle, GateType type) const;
+    //»ù´¡º¯Êý
+   
 
 private:
-    std::unordered_map<int, std::vector<Gate*>> scheduledGates;
+    std::vector<size_t> unscheduledIndices;
     int totalCycles;
 };
 
-class BlifParser {
-public:
-    Circuit parseBlif(const std::string& filename);
-};
 
