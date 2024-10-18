@@ -13,7 +13,7 @@ void parseBLIF(const std::string& filename, Circuit& verilog) {
     while (std::getline(inblif, line)) {
         if (line.find(".model") == 0) {
             verilog.setModuleName(line.substr(7));
-            //Circuit::addModuleName(verilog.moduleName) = line.substr(7);
+           
         }
         else if (line.find(".inputs") == 0) {
             std::istringstream iss(line.substr(8));
@@ -21,11 +21,7 @@ void parseBLIF(const std::string& filename, Circuit& verilog) {
             while (iss >> input) {
                 verilog.addInput(input);
                 verilog.addWire(input);
-                /*gate.setOutput(input);
-                gate.setGateid(gate.getOutput());
-                verilog.addGate(gate);*/
-                //verilog.inputs.push_back(input);
-                //verilog.wires.push_back(input);
+               
             }
         }
         else if (line.find(".outputs") == 0) {
@@ -34,8 +30,7 @@ void parseBLIF(const std::string& filename, Circuit& verilog) {
             while (iss >> output) {
                 verilog.addOutput(output);
                 verilog.addWire(output);
-                //verilog.outputs.push_back(output);
-                //verilog.wires.push_back(output);
+               
             }
         }
         else if (line.find(".names") == 0) {
@@ -45,20 +40,16 @@ void parseBLIF(const std::string& filename, Circuit& verilog) {
             while (iss >> var) {
                 vars.push_back(var);
 
-                //if (std::find(verilog.getWires().begin(), verilog.getWires().end(), var) == verilog.getWires().end()) {
+               
                 const auto& wires = verilog.getWires();
                 if (std::find(wires.begin(), wires.end(), var) == wires.end()) {
                     verilog.addWire(var);
-                    //if (std::find(verilog.wires.begin(), verilog.wires.end(), var) == verilog.wires.end()) {
-                    //    verilog.wires.push_back(var);
+                   
                 }
             }
 
             Gate gate;
-            //gate.gateoutput = vars.back();
-            //gate.getGateid() = gate.gateoutput; // 使用输出名称作为唯一标识符
-            //vars.pop_back();
-            //gate.gateinputs = vars;
+           
             gate.setOutput(vars.back());
             gate.setGateid(gate.getOutput()); // 使用输出名称作为唯一标识符
             vars.pop_back();
@@ -104,12 +95,7 @@ void parseBLIF(const std::string& filename, Circuit& verilog) {
                 }
             }
 
-            //verilog.gates.push_back(gate);
-            //verilog.gateMap[gate.gateid] = gate;
-
-            // Push back the gate after processing
-            //verilog.gates.push_back(gate);
-            //verilog.gateMap[gate.gateid] = gate;
+          
             verilog.addGate(gate);
 
             // 将读取的行放回输入流中
@@ -123,7 +109,7 @@ void parseBLIF(const std::string& filename, Circuit& verilog) {
            
         }
     }
-
+    
     for (const auto& input : verilog.getInputs()) {
         Gate gate;
         gate.setOutput(input);
