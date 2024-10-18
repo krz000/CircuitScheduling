@@ -95,7 +95,18 @@ bool Gate::operator==(const Gate& other) const {
 //打印调度总结果
 void Circuit::printSchedule(Circuit& circuit, Scheduler& scheduler) const {
     int totalCycles = circuit.getMaxScheduledCycle();
-    std::cout << "Total " << totalCycles << " Cycles\n";
+    std::string inputString;
+    for (const std::string& input : inputs) {
+		inputString += input + " ,";
+	}
+    inputString.back() = ' ';//去掉最后一个逗号
+    std::string outputString;
+    for (const std::string& output : outputs) {
+        outputString += output + " ,";
+    }
+    outputString.back() = ' ';//去掉最后一个逗号
+    std::cout<<"Input :"<<inputString<<" Output :"<<outputString<<std::endl;
+    std::cout << "Total " << totalCycles+1 << " Cycles\n";
     for (int i = 0; i <= totalCycles; ++i) {
         std::cout << "Cycle " << i << ": ";
         printGatesOfType(i, GateType::AND,scheduler);
@@ -118,12 +129,7 @@ void Circuit::printGatesOfType(int cycle, GateType type, Scheduler& scheduler) c
         }
     }
     std::cout << "}, ";
-    /*
-    //当type为NOT时，输出完毕后需要输出一个}不包含"，"
-    if (type == GateType::NOT)
-    {
-        std::cout << "}";
-    }*/
+   
 }
 
 

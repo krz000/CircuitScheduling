@@ -56,12 +56,9 @@ void ASAPScheduler::schedule(Circuit& circuit) {
         for (auto it = unscheduledIndices.begin(); it != unscheduledIndices.end();) {
             Gate& gate = gates[*it];
             if (gate.getInputs().empty()) {
-                // 如果门没有输入，可以立即调度
-                gate.setScheduledCycle(cycleNum);
+                // 如果是输入，直接把这个门的isScheduled设置为true
                 gate.setScheduled(true);
                 scheduledGates.push_back(gate);
-                // 将指向门的指针添加到当前周期的调度列表中
-                gatesWithCycles[cycleNum].push_back(&gates[*it]);
                 // 从未调度列表中移除这个门的索引
                 it = unscheduledIndices.erase(it);
             }
@@ -78,9 +75,9 @@ void ASAPScheduler::schedule(Circuit& circuit) {
         // 移动到下一个周期
         if (!readyGatesIndices.empty())
         {
-			cycleNum++;
 			
-		}
+			
+		
 
         // 处理所有准备调度的门
         for (size_t index : readyGatesIndices) {
@@ -90,13 +87,18 @@ void ASAPScheduler::schedule(Circuit& circuit) {
             gate.setScheduled(true);
             scheduledGates.push_back(gate);
             // 将指向门的指针添加到当前周期的调度列表中
-            //getScheduledGatesWithCycles()[cycleNum].push_back(&gates[index]);
+            
             gatesWithCycles[cycleNum].push_back(&gates[index]);
             // 从未调度列表中移除这个门的索引
             unscheduledIndices.erase(std::remove(unscheduledIndices.begin(), unscheduledIndices.end(), index), unscheduledIndices.end());
         }
+             cycleNum++;
 
-       totalCycles= cycleNum;
+		}
+
+
+        
+       totalCycles= cycleNum+1;
     }
 }
 
