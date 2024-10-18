@@ -30,12 +30,18 @@
     <ClCompile Include="ASAP.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Hu.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ASAP.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Circuit.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Hu.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,8 +11,7 @@ class ASAPScheduler : public Scheduler {
 public:
     bool areAllPredecessorsScheduled(const Gate& gate,const Circuit &circuit) const;
     void schedule(Circuit& circuit) override;
-    //void printSchedule(Circuit& circuit) const override;
-    //void printGatesOfType(int cycle, GateType type) const;
+
     //»ù´¡º¯Êý
    
 
