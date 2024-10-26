@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ALAP.cpp" />
     <ClCompile Include="ASAP.cpp" />
     <ClCompile Include="Circuit.cpp" />
     <ClCompile Include="main.cpp" />
@@ -134,6 +135,7 @@
     <ClCompile Include="writeVerilog.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ALAP.h" />
     <ClInclude Include="ASAP.h" />
     <ClInclude Include="Circuit.h" />
   </ItemGroup>
