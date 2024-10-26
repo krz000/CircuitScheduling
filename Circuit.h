@@ -13,6 +13,7 @@
 
 
 enum class GateType {
+    //unkonwn
     AND,
     OR,
     NOT
