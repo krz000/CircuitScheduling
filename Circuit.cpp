@@ -114,60 +114,60 @@ void Circuit::printGatesOfType(int cycle, GateType type, Scheduler& scheduler) c
 
 }
 
-
-std::vector<const Gate*> Circuit::getAllScheduledGates() const {
-    std::vector<const Gate*> scheduledGates;
-    for (const auto& gate : gates) {
-        if (gate.isScheduled()) {
-            scheduledGates.push_back(&gate);
-        }
-    }
-    return scheduledGates;
-}
-
-void Circuit::printSchedule(const Scheduler& scheduler) const {
-    int maxCycle = getMaxScheduledCycle();
-
-    // 打印输入和输出
-    std::cout << "Input :";
-    for (size_t i = 0; i < inputs.size(); ++i) {
-        std::cout << inputs[i];
-        if (i < inputs.size() - 1) std::cout << " ,";
-    }
-    std::cout << "  Output :";
-    for (size_t i = 0; i < outputs.size(); ++i) {
-        std::cout << outputs[i];
-        if (i < outputs.size() - 1) std::cout << " ,";
-    }
-    std::cout << std::endl;
-
-    std::cout << "Total " << maxCycle + 1 << " Cycles" << std::endl;
-
-    std::vector<const Gate*> scheduledGates = getAllScheduledGates();
-
-    for (int cycle = 0; cycle <= maxCycle; ++cycle) {
-        std::cout << "Cycle " << cycle << ": ";
-        printGatesOfType(cycle, GateType::AND, scheduledGates);
-        std::cout << ", ";
-        printGatesOfType(cycle, GateType::OR, scheduledGates);
-        std::cout << ", ";
-        printGatesOfType(cycle, GateType::NOT, scheduledGates);
-        std::cout << "," << std::endl;
-    }
-}
-
-void Circuit::printGatesOfType(int cycle, GateType type, const std::vector<const Gate*>& scheduledGates) const {
-    std::cout << "{";
-    bool first = true;
-    for (const Gate* gate : scheduledGates) {
-        if (gate->getScheduledCycle() == cycle && gate->getType() == type) {
-            if (!first) std::cout << " ";
-            std::cout << gate->getOutput();
-            first = false;
-        }
-    }
-    std::cout << "}";
-}
+//AI修改函数
+//std::vector<const Gate*> Circuit::getAllScheduledGates() const {
+//    std::vector<const Gate*> scheduledGates;
+//    for (const auto& gate : gates) {
+//        if (gate.isScheduled()) {
+//            scheduledGates.push_back(&gate);
+//        }
+//    }
+//    return scheduledGates;
+//}
+//
+//void Circuit::printSchedule(const Scheduler& scheduler) const {
+//    int maxCycle = getMaxScheduledCycle();
+//
+//    // 打印输入和输出
+//    std::cout << "Input :";
+//    for (size_t i = 0; i < inputs.size(); ++i) {
+//        std::cout << inputs[i];
+//        if (i < inputs.size() - 1) std::cout << " ,";
+//    }
+//    std::cout << "  Output :";
+//    for (size_t i = 0; i < outputs.size(); ++i) {
+//        std::cout << outputs[i];
+//        if (i < outputs.size() - 1) std::cout << " ,";
+//    }
+//    std::cout << std::endl;
+//
+//    std::cout << "Total " << maxCycle + 1 << " Cycles" << std::endl;
+//
+//    std::vector<const Gate*> scheduledGates = getAllScheduledGates();
+//
+//    for (int cycle = 0; cycle <= maxCycle; ++cycle) {
+//        std::cout << "Cycle " << cycle << ": ";
+//        printGatesOfType(cycle, GateType::AND, scheduledGates);
+//        std::cout << ", ";
+//        printGatesOfType(cycle, GateType::OR, scheduledGates);
+//        std::cout << ", ";
+//        printGatesOfType(cycle, GateType::NOT, scheduledGates);
+//        std::cout << "," << std::endl;
+//    }
+//}
+//
+//void Circuit::printGatesOfType(int cycle, GateType type, const std::vector<const Gate*>& scheduledGates) const {
+//    std::cout << "{";
+//    bool first = true;
+//    for (const Gate* gate : scheduledGates) {
+//        if (gate->getScheduledCycle() == cycle && gate->getType() == type) {
+//            if (!first) std::cout << " ";
+//            std::cout << gate->getOutput();
+//            first = false;
+//        }
+//    }
+//    std::cout << "}";
+//}
 
 
 

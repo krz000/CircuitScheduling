@@ -15,7 +15,7 @@
 enum class GateType {
     UNKOWN,
     NOT,
-    //AND,
+    AND,
     OR
 };
 
@@ -105,11 +105,11 @@ public:
         throw std::runtime_error("Gate not found: " + outputName);
     }
 
-    // 添加新的方法来获取所有已调度的门
-    std::vector<const Gate*> getAllScheduledGates() const;
+    //// 添加新的方法来获取所有已调度的门
+    //std::vector<const Gate*> getAllScheduledGates() const;
 
-    // 修改 printSchedule 方法
-    void printSchedule(const Scheduler& scheduler) const;
+    //// 修改 printSchedule 方法
+    //void printSchedule(const Scheduler& scheduler) const;
 
 private:
     std::vector<std::string> inputs;
@@ -119,8 +119,8 @@ private:
     std::vector<std::string> wires;
     std::unordered_map<std::string, Gate> gateMap;//name gate useless
     
-    // 添加新的辅助方法
-    void printGatesOfType(int cycle, GateType type, const std::vector<const Gate*>& scheduledGates) const;
+    //// 添加新的辅助方法
+    //void printGatesOfType(int cycle, GateType type, const std::vector<const Gate*>& scheduledGates) const;
 
 };
 
