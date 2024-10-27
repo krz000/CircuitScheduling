@@ -13,10 +13,11 @@
 
 
 enum class GateType {
-    //unkonwn
+    UNKOWN,
+    NOT,
     AND,
-    OR,
-    NOT
+    OR
+    
 };
 
 class Gate
