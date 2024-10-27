@@ -30,7 +30,10 @@
     <ClCompile Include="ASAP.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ALAP.cpp">
+    <ClCompile Include="Hu.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ML_RCS.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +44,10 @@
     <ClInclude Include="Circuit.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ALAP.h">
+    <ClInclude Include="Hu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ML_RCS.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
