@@ -11,12 +11,12 @@
 #include <sstream>
 
 
-//消耗的周期数+1
+//消耗的资源数+1
 enum class GateType {
     UNKOWN,
-    NOT,
-    AND,
-    OR
+    NOT, // 1
+    AND, // 2
+	OR,  // 3
 };
 
 class Gate

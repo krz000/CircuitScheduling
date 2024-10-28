@@ -58,29 +58,29 @@ void ALAP::ALAPschedule(Circuit& circuit) {
 }
 
 // 移除重复的门
-void ALAP::removeDuplicateGates(Circuit& circuit) {
-    std::unordered_map<std::string, Gate*> uniqueGates;
-    std::vector<Gate>& gates = circuit.getGates();
-
-    for (auto& gate : gates) {
-        std::string gateId = gate.getGateId();
-        if (uniqueGates.find(gateId) == uniqueGates.end()) {
-            uniqueGates[gateId] = &gate;
-        }
-        else {
-            Gate* existingGate = uniqueGates[gateId];
-            if (gate.getScheduledCycle() < existingGate->getScheduledCycle()) {
-                existingGate->setScheduledCycle(gate.getScheduledCycle());
-                existingGate->setScheduled(true);
-            }
-            gate.setScheduled(false);
-        }
-    }
-
-    // 移除未调度的门
-    gates.erase(std::remove_if(gates.begin(), gates.end(),
-        [](const Gate& g) { return !g.isScheduled(); }), gates.end());
-}
+//void ALAP::removeDuplicateGates(Circuit& circuit) {
+//    std::unordered_map<std::string, Gate*> uniqueGates;
+//    std::vector<Gate>& gates = circuit.getGates();
+//
+//    for (auto& gate : gates) {
+//        std::string gateId = gate.getGateId();
+//        if (uniqueGates.find(gateId) == uniqueGates.end()) {
+//            uniqueGates[gateId] = &gate;
+//        }
+//        else {
+//            Gate* existingGate = uniqueGates[gateId];
+//            if (gate.getScheduledCycle() < existingGate->getScheduledCycle()) {
+//                existingGate->setScheduledCycle(gate.getScheduledCycle());
+//                existingGate->setScheduled(true);
+//            }
+//            gate.setScheduled(false);
+//        }
+//    }
+//
+//    // 移除未调度的门
+//    gates.erase(std::remove_if(gates.begin(), gates.end(),
+//        [](const Gate& g) { return !g.isScheduled(); }), gates.end());
+//}
 
 int ALAP::scheduleGate(Circuit& circuit, const std::string& gateName, int currentCycle) {
 
