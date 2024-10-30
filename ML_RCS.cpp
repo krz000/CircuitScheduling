@@ -1,7 +1,7 @@
 #include "ML_RCS.h"
 #include "Circuit.h"
 #include <algorithm>
-
+/*
 MLRCSScheduler::MLRCSScheduler(int and_gates, int or_gates, int not_gates)
     : resources{ and_gates, or_gates, not_gates }, currentCycle(0) {}
 
@@ -108,4 +108,4 @@ void MLRCSScheduler::incrementResources(const Gate& gate) {
     case GateType::OR: resources.or_gates++; break;
     case GateType::NOT: resources.not_gates++; break;
     }
-}
+}*/

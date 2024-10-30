@@ -36,6 +36,15 @@
     <ClCompile Include="ML_RCS.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ALAP.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ALAP_Latency.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ASAP_Latency.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ASAP.h">
@@ -48,6 +57,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ML_RCS.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ALAP.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ALAP_Latency.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ASAP_Latency.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
