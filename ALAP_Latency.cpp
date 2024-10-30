@@ -43,7 +43,7 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
     int delay = getGateDelay(*gate);
    
     // 递归处理所有输入门
-    int maxCycleInOnePath = -1;  // 当前门的周期
+    int maxCycleInOnePath = -1;  // 一条路径上的最大周期
     int maxInputCycle = -1;//当前门的输入门的最大周期
     
     for (const auto& inputName : gate->getInputs()) {
@@ -63,7 +63,15 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
     }
 
     int finalCycle = std::max(maxCycleInOnePath, gate->getScheduledCycle());
-    int finalOtherCycle = std::min(maxCycleInOnePath, gate->getScheduledCycle());
+    
+    int finalOtherCycle ;
+    if (gate->getScheduledCycle() == -1) {
+        finalOtherCycle = finalCycle;//若是第一次，则cycle数为-1，则不需要取小
+    }
+    else
+    {
+        finalOtherCycle = std::min(maxCycleInOnePath, gate->getScheduledCycle());//若是第二次及以上发现同一gate，则需要取小
+    }
     // 更新门的调度周期
     if (finalCycle == -1) {
         //gate->setScheduledCycle(minCycle);//如果gate的cycle为-1，那么gate的cycle为-1，表示输入门
@@ -96,6 +104,7 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
         auto gateIt = std::find_if(gatesInCycle.begin(), gatesInCycle.end(),
             [gate](const Gate* g) { return g->getOutput() == gate->getOutput(); });
 
+       
        if (gateIt != gatesInCycle.end()) {
             if (it->first >gate->getScheduledCycle()) {
 
@@ -113,8 +122,12 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
 
             }
         }
+       else {
+           //reptGatesNum++;
+       }
         ++it;
     }
+    //处理在同一级cycle重复的gate
     if (reptGatesNum > 1)
     {
         for (auto it = gatesWithCycles.begin(); it != gatesWithCycles.end();) {
@@ -131,38 +144,6 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
             ++it;
         }
 	}
-
- //  
-    //auto& gatesWithCycles = getScheduledGatesWithCycles();
-    ////对于重复的gate，删除gate再添加gate
-    //auto& gatesInCycle = gatesWithCycles[gate->getScheduledCycle()];
-    //   // 遍历整个 unordered_map，查找重复的 Gate
-    //for (auto it = gatesWithCycles.begin(); it != gatesWithCycles.end();) {
-    //    auto& gatesInCycle = it->second;
-
-    //    // 查找是否有相同输出的 Gate
-    //    auto gateIt = std::find_if(gatesInCycle.begin(), gatesInCycle.end(), [&gate](const Gate* g) {
-    //        return g->getOutput() == gate->getOutput();
-    //        });
-
-    //    if (gateIt != gatesInCycle.end()) {
-    //        // 如果找到相同输出的 Gate，比较 int 值
-    //        if (it->first >= gate->getScheduledCycle()) {
-    //            // 当前的 int 键较小，删除该 Gate
-    //            gatesInCycle.erase(gateIt);
-    //            ++it; // 移动到下一个元素
-    //        }
-    //        else {
-    //            // 当前 int 键较大，删除较大的 scheduledCycle 对应的 Gate
-    //            // 退出当前操作，因为我们已经保留了更大的
-    //        }
-    //    }
-    //    else {
-    //        ++it; // 如果没有找到相同的 Gate，继续遍历
-    //    }
-    //}
-    //
-    //gatesInCycle.push_back(gate);
 
     return finalOtherCycle+delay;
 }
