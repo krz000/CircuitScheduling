@@ -16,6 +16,7 @@
 
 void MR_LCS::schedule(Circuit& circuit) {
     // 调用MR_RCS，暴力得到minCycle
+    // timeLimit = targetCycle;
   //  while (minCycle > timeLimit) {
 		//int _and = 0, _or = 0, _not = 0;
 		//int _sum = _and + _or + _not;
@@ -24,6 +25,56 @@ void MR_LCS::schedule(Circuit& circuit) {
   //      // 000开始 对于总资源数为_sum，分别分配，得到最小的cycle，记录各类门的资源数
 		//// A(n, 3) = n(n-1)(n-2)/6;
   //  }
+}
+
+void MR_LCS::MR_LCSscheduleBF(Circuit& circuit, int timeLimit) {
+    //判断无限资源所需轮次
+    const int minCycle = ML_RCS({ INF, INF, INF });
+    //无限资源下轮次大于要求则不能完成
+
+    if (minCycle > timeLimit) {
+        //报错
+    }
+
+    //遍历所有门保存数量
+    std::array<int, 3> gateNum = { 0, 0, 0 };
+    for (auto& gate : circuit.getGates()) {
+        switch (gate.getType()) {
+        case GateType::AND: ++gateNum[0]; break;
+        case GateType::OR: ++gateNum[1]; break;
+        case GateType::NOT: ++gateNum[2]; break;
+        }
+    }
+    //排除不需要的门
+    std::array<bool, 3> needGate = { true, true, true };
+    for (int i = 0; i < gateNum.size(); ++i) {
+        if (gateNum[i] == 0) needGate[i] = false;
+    }
+    //如果不需要某种门，则其资源是0
+    // 资源数
+    std::array<int, 3> resourseNum = { 0, 0, 0 };
+    for (int i = 0; i < resourseNum.size(); ++i) {
+        if (needGate[i]) resourseNum[i] = 1;
+    }
+
+    int cycle = MLRCS(resourseNum);
+    if (cycle <= timeLimit);
+	// 确定资源数
+
+    int index = 0;
+    //资源由小到大，轮次则由大到小
+    //轮次正好小于等于限制，即为最小资源
+    while (cycle <= timeLimit) {
+        //尝试增加资源
+        if (needGate[index]) ++resourseNum[index];
+        int tmp = MLRCS(resourseNum);
+        //增加资源有效，或者 非递减 ，覆写cycle
+        if (tmp <= cycle) cycle = tmp;
+        //无效，撤回增加资源
+        else --resourseNum[index];
+        //索引自增（循环）
+        index = ++index % resourseNum.size();
+    }
 
 }
 

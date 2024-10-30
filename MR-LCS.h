@@ -5,13 +5,19 @@
 
 #include "Circuit.h"
 #include <algorithm>
+#include <array>
 
 class MR_LCS : public Scheduler {
 public:
 	void schedule(Circuit& circuit) override;
 	void MR_LCSschedule(Circuit& circuit, int timeLimit);
+	void MR_LCSscheduleBF(Circuit& circuit, int timeLimit);
     //int resourceLimit;
-
+	std::array<int, 3> resourseNum = { 0, 0, 0 };
+	int INF = -1;//无穷大的资源
+	int getResourseNum() {
+		return resourseNum[0] + resourseNum[1] + resourseNum[2];
+	}
 private:
 	int scheduleGate(Circuit& circuit, const std::string& gateName, int currentCycle);
 
