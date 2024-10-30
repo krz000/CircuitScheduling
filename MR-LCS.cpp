@@ -15,11 +15,20 @@
 */
 
 void MR_LCS::schedule(Circuit& circuit) {
-    // 调用 MR-RCS 的主要调度函数
+    // 调用MR_RCS，暴力得到minCycle
+    while (minCycle > timeLimit) {
+		int _and = 0, _or = 0, _not = 0;
+		int _sum = _and + _or + _not;
+		minCycle = MR_RCS(circuit, _and, _or, _not);
+        // 算法优化
+        // 000开始 对于总资源数为_sum，分别分配，得到最小的cycle，记录各类门的资源数
+		// A(n, 3) = n(n-1)(n-2)/6;
+    }
+
 }
 
 void MR_LCS::MR_LCSschedule(Circuit& circuit, int timeLimit) {
-    // 1. 初始化 是否传参加入时间限制? 资源限制?
+    // 1. 初始化 传参加入时间限制
     std::unordered_map<int, std::vector<Gate*>>& gatesWithCycles = getScheduledGatesWithCycles();
     gatesWithCycles.clear();
 
@@ -95,10 +104,11 @@ int MR_LCS::scheduleGate(Circuit& circuit, const std::string& gateName, int curr
         }
 
 		// 队列依次出列调度，
-        // 跳过什么时候回来？
 
 
         auto& gatesInCycle = gatesWithCycles[scheduledCycle];
+
+        // 删除重复门
 
         gatesInCycle.push_back(&gate);
 

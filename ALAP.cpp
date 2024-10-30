@@ -129,7 +129,8 @@ int ALAP::scheduleGate(Circuit& circuit, const std::string& gateName, int curren
         gate.setScheduled(false);
 		//对于重复的gate，删除gate再添加gate
         auto& gatesInCycle = gatesWithCycles[scheduledCycle];
-        
+		// flag 检查是否有相同输出的 Gate
+		bool flag = true;
         // 遍历整个 unordered_map，查找重复的 Gate
         for (auto it = gatesWithCycles.begin(); it != gatesWithCycles.end();) {
             auto& gatesInCycle = it->second;
@@ -141,22 +142,29 @@ int ALAP::scheduleGate(Circuit& circuit, const std::string& gateName, int curren
 
             if (gateIt != gatesInCycle.end()) {
                 // 如果找到相同输出的 Gate，比较 int 值
-                if (it->first >= scheduledCycle) {
-                    // 当前的 int 键较小，删除该 Gate
+				flag = true;
+                if (it->first >= scheduledCycle) {// 存的 >= 现在的
+                    // 当前的 int 键较小，删除存的 Gate
                     gatesInCycle.erase(gateIt);
                     ++it; // 移动到下一个元素
+                    // 保留现在的，因为cycle比较小
+					flag = false;
                 }
                 else {
                     // 当前 int 键较大，删除较大的 scheduledCycle 对应的 Gate
                     // 退出当前操作，因为我们已经保留了更大的
+                    // 不pushback
                 }
             }
             else {
+                flag = false;
                 ++it; // 如果没有找到相同的 Gate，继续遍历
             }
         }
-        
-        gatesInCycle.push_back(&gate);
+		// 如果没有找到相同的 Gate，直接 push_back
+        if (!flag) {
+            gatesInCycle.push_back(&gate);
+        }
 
         return scheduledCycle;
     }
