@@ -10,11 +10,14 @@ class MR_LCS : public Scheduler {
 public:
 	void schedule(Circuit& circuit) override;
 	void MR_LCSschedule(Circuit& circuit, int timeLimit);
+
+    int resourceLimit;
+
 private:
 	int scheduleGate(Circuit& circuit, const std::string& gateName, int currentCycle);
 
     int timeLimit;
-	int resourceLimit;
+
 
     // 实现队列，依次装入MR_RCS处理后的gate
 
