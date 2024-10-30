@@ -9,7 +9,7 @@
 * 每个资源数都有不同的2.4 2.5
 * 2. 每个gate消耗的资源数不同
 * 资源数 = gateType & 2 | 3 ! 1
-* 如何排序
+* 
 * 
 * 
 */
@@ -35,7 +35,7 @@ void MR_LCS::MR_LCSschedule(Circuit& circuit, int timeLimit) {
 	// 2. 计算 2.4 时间 得到该资源数下的最大周期
     //  maxcycle = mintime
     // 3. 检查 给定时间限定 的可行性
-    
+	// ALAP延迟版得到 minTime + 运行顺序
     //int minTime = MR_RCS();
 	int minTime = 5;
 	// 给定时间和MR_RCS的最小时间比较 小于说明不可能做到
@@ -49,6 +49,10 @@ void MR_LCS::MR_LCSschedule(Circuit& circuit, int timeLimit) {
          gate.setScheduled(false);
     }
 
+    // 资源数
+	int _and = 0, _or = 0, _not = 0;
+	
+
 	int maxCycle = minTime;
     // 从输出开始反向遍历
     std::vector<std::string> outputs = circuit.getOutputs();
@@ -58,32 +62,33 @@ void MR_LCS::MR_LCSschedule(Circuit& circuit, int timeLimit) {
     
     
     // 5. 开始调度过程
-    //int currentCycle = 0;
-    //bool allScheduled = false;
+    int currentCycle = 0;
+    bool allScheduled = false;
 
-    //while (!allScheduled) {
-        //// 5.1 找出当前可调度的门（就绪状态的门）
-        //std::vector<Gate*> readyGates = findReadyGates(circuit);
 
-        //// 5.2 计算每个就绪门的 slack
-        //std::vector<std::pair<Gate*, int>> gateSlacks;
-        //for (Gate* gate : readyGates) {
-        //    int slack = calculateSlack(*gate, currentCycle);
-        //    gateSlacks.push_back({ gate, slack });
-        //}
+    while (!allScheduled) {
+        // 5.1 找出当前可调度的门（就绪状态的门）
+        std::vector<Gate*> readyGates = findReadyGates(circuit);
+        
+        // 5.2 计算每个就绪门的 slack=最晚完成时间-当前时间
+        std::vector<std::pair<Gate*, int>> gateSlacks;
+        for (Gate* gate : readyGates) {
+            int slack = calculateSlack(*gate, currentCycle);
+            gateSlacks.push_back({ gate, slack });
+        }
 
-        //// 5.3 优先调度 slack 为 0 的门
-        //scheduleZeroSlackGates(gateSlacks, currentCycle, gatesWithCycles);
+        // 5.3 优先调度 slack 为 0 的门
+        scheduleZeroSlackGates(gateSlacks, currentCycle, gatesWithCycles);
 
-        //// 5.4 在资源约束下调度额外的门
-        //scheduleAdditionalGates(gateSlacks, currentCycle, gatesWithCycles);
+        // 5.4 在资源约束下调度额外的门
+        scheduleAdditionalGates(gateSlacks, currentCycle, gatesWithCycles);
 
-        //// 5.5 检查是否所有门都已调度
-        //allScheduled = checkAllScheduled(circuit);
+        // 5.5 检查是否所有门都已调度
+        allScheduled = checkAllScheduled(circuit);
 
-        //// 5.6 进入下一个周期
-        //currentCycle++;
-    //}
+        // 5.6 进入下一个周期
+        currentCycle++;
+    }
 }
 
 int MR_LCS::scheduleGate(Circuit& circuit, const std::string& gateName, int currentCycle) {
@@ -120,3 +125,27 @@ int MR_LCS::scheduleGate(Circuit& circuit, const std::string& gateName, int curr
     }
 }
 
+std::vector<Gate*> findReadyGates(Circuit& circuit) {
+    // 就绪状态门: 没有scheduled+前驱都已经scheduled
+
+}
+
+int calculateSlack(const Gate& gate, int currentCycle) {
+    // 计算 slack: 用MR_RCS得到最后的cycle， 
+}
+
+void scheduleZeroSlackGates(std::vector<std::pair<Gate*, int>>& gateSlacks,
+    int currentCycle,
+    std::unordered_map<int, std::vector<Gate*>>& gatesWithCycles) {
+    // 实现调度 slack 为 0 的门的逻辑
+}
+
+void scheduleAdditionalGates(std::vector<std::pair<Gate*, int>>& gateSlacks,
+    int currentCycle,
+    std::unordered_map<int, std::vector<Gate*>>& gatesWithCycles) {
+    // 实现在资源约束下调度额外门的逻辑
+}
+
+bool checkAllScheduled(Circuit& circuit) {
+    // 实现检查是否所有门都已调度的逻辑
+}
