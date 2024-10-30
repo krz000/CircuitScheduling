@@ -10,8 +10,7 @@ class MR_LCS : public Scheduler {
 public:
 	void schedule(Circuit& circuit) override;
 	void MR_LCSschedule(Circuit& circuit, int timeLimit);
-
-    int resourceLimit;
+    //int resourceLimit;
 
 private:
 	int scheduleGate(Circuit& circuit, const std::string& gateName, int currentCycle);
@@ -39,4 +38,51 @@ private:
     bool checkAllScheduled(Circuit& circuit);
 };
 
+class Resource {
+public:
+	Resource(int resourceLimit) : resourceLimit(resourceLimit) {}
+
+	bool isAvailable() const {
+		return usedResources < resourceLimit;
+	}
+
+	void setResource(int resourceLimit) {
+		this->resourceLimit = resourceLimit;
+	}
+
+	void useResource() {
+		usedResources++;
+	}
+
+	void freeResource() {
+		usedResources--;
+	}
+private:
+	int resourceLimit;
+	int usedResources = 0;
+};
+
+class _And : public Resource {
+public:
+	_And(int resourceLimit) : Resource(resourceLimit) {}
+private:
+	int resourceLimit;
+	int usedResources = 0;
+};
+
+class _Or : public Resource {
+public:
+	_Or(int resourceLimit) : Resource(resourceLimit) {}
+private:
+	int resourceLimit;
+	int usedResources = 0;
+};
+
+class _Not : public Resource {
+public:
+	_Not(int resourceLimit) : Resource(resourceLimit) {}
+private:
+	int resourceLimit;
+	int usedResources = 0;
+};
 #endif // !MR-LCS_H

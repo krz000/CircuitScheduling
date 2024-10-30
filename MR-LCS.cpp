@@ -52,6 +52,8 @@ void MR_LCS::MR_LCSschedule(Circuit& circuit, int timeLimit) {
     }
 
     // 资源数
+    _And _and(0);
+	//_and.freeResource();
 	int _and = 0, _or = 0, _not = 0;
 	
 
@@ -127,7 +129,8 @@ int MR_LCS::scheduleGate(Circuit& circuit, const std::string& gateName, int curr
   //  }
 }
 
-std::vector<Gate*> findReadyGates(Circuit& circuit) {
+
+std::vector<Gate*> MR_LCS::findReadyGates(Circuit& circuit) {
     // 就绪状态门: 没有scheduled+前驱都已经scheduled
     // 还需要排序，按照顺序
         std::vector<Gate*> readyGates;
@@ -184,7 +187,7 @@ std::vector<Gate*> findReadyGates(Circuit& circuit) {
 
 
 
-int calculateSlack(const Gate& gate, int currentCycle) {
+int MR_LCS::calculateSlack(const Gate& gate, int currentCycle) {
     // 计算 slack: 用MR_RCS得到最后的cycle， 
     
     // 1. 获取该门的ALAP时间
@@ -203,12 +206,14 @@ int calculateSlack(const Gate& gate, int currentCycle) {
     return std::max(0, slack);
 }
 
-void scheduleZeroSlackGates(std::vector<std::pair<Gate*, int>>& gateSlacks,
+
+void MR_LCS::scheduleZeroSlackGates(std::vector<std::pair<Gate*, int>>& gateSlacks,
     int currentCycle,
     std::unordered_map<int, std::vector<Gate*>>& gatesWithCycles) {
     // 实现调度 slack 为 0 的门的逻辑
     // 1. 统计当前周期各类型门的资源使用情况 已使用
     // ？
+
     int andGates = 0, orGates = 0, notGates = 0;
     if (gatesWithCycles.find(currentCycle) != gatesWithCycles.end()) {
         for (Gate* gate : gatesWithCycles[currentCycle]) {
@@ -274,7 +279,7 @@ void scheduleZeroSlackGates(std::vector<std::pair<Gate*, int>>& gateSlacks,
     }
 }
 
-void scheduleAdditionalGates(std::vector<std::pair<Gate*, int>>& gateSlacks,
+void MR_LCS::scheduleAdditionalGates(std::vector<std::pair<Gate*, int>>& gateSlacks,
     int currentCycle,
     std::unordered_map<int, std::vector<Gate*>>& gatesWithCycles) {
     // 实现在资源约束下调度额外门的逻辑
@@ -344,7 +349,7 @@ void scheduleAdditionalGates(std::vector<std::pair<Gate*, int>>& gateSlacks,
     }
 }
 
-bool checkAllScheduled(Circuit& circuit) {
+bool MR_LCS::checkAllScheduled(Circuit& circuit) {
     // 实现检查是否所有门都已调度的逻辑
         // 获取所有门
     std::vector<Gate>& gates = circuit.getGates();
