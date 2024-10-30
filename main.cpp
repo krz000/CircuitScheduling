@@ -1,6 +1,8 @@
 #include "circuit.h"
 #include "ALAP.h"
 #include "ASAP.h"
+#include"ALAP_Latency.h"
+#include"ASAP_Latency.h"
 
 int main() {
     Circuit verilog;
@@ -18,11 +20,19 @@ int main() {
     //verilog.printSchedule(verilog, asapScheduler);
 
 	//TEST ALAP
-    ALAP ALAPscheduler;
+    
+   /*ALAP ALAPscheduler;
 	ALAPscheduler.schedule(verilog);
     ALAPscheduler.ALAPschedule(verilog);
-    verilog.printSchedule(verilog, ALAPscheduler);
+    verilog.printSchedule(verilog, ALAPscheduler);*/
+
     
+   
+    
+    ALAP_L al;
+    
+    al.ALAP_Lschedule(verilog);
+    verilog.printSchedule(verilog, al);
     /* ALAP´ð°¸
     Input :a ,b ,c ,d ,e ,f   Output :o ,p ,q
     Total 4 Cycles
