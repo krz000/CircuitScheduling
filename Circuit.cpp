@@ -114,7 +114,9 @@ void Circuit::printGatesOfType(int cycle, GateType type, Scheduler& scheduler) c
             }
         }
     }
-    std::cout << "}, ";
+    if(type == GateType::NOT)
+    std::cout << "} ";
+    else std::cout << "}, ";
 
 }
 
