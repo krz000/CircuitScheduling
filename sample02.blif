@@ -1,30 +1,35 @@
-. model sample02
-. inputs a b c d e f
-. outputs o p q
-. names a d g
+.model sample03
+.inputs a b c d e
+.outputs o p
+.names a b f
 1- 1
 -1 1
-. names a c h
+.names b d g
 11 1
-. names c i
-0 1
-. names d e f j
+.names f g h
+10 1
+01 1
+.names c h i
+1- 1
+-1 1
+.names e f g j
 1-- 1
--1– 1
+-1- 1
 --1 1
-.names g h i k
-1-- 1
--1– 1
---1 1
-. names h i j l
-111 1
-. names i j m
+.names i j k
 11 1
-. names l m n
-11 1
-. names b h k o
-111 1
-. names g p
+.names d e k l
+01 1
+.names l o
 0 1
-. names n q
+.names k p
 0 1
+.end
+
+
+
+
+
+
+
+
