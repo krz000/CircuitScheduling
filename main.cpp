@@ -23,8 +23,8 @@ int main() {
 
     //TEST sample02
     Circuit verilog02;
-    std::string blifFile02 = "sample02.blif";//TODO
-    std::string verilogFile02 = "sample02.v";
+    std::string blifFile02 = "sample04.blif";//TODO
+    std::string verilogFile02 = "sample04.v";
 
     parseBLIF(blifFile02, verilog02);
     writeVerilog(verilogFile02, verilog02);
@@ -57,10 +57,10 @@ int main() {
   
 	//TEST ALAP
     
-   /*ALAP ALAPscheduler;
-	ALAPscheduler.schedule(verilog);
-    ALAPscheduler.ALAPschedule(verilog);
-    verilog.printSchedule(verilog, ALAPscheduler);*/
+   /* ALAP ALAPscheduler;
+	ALAPscheduler.schedule(verilog02);
+    ALAPscheduler.ALAPschedule(verilog02);
+    verilog.printSchedule(verilog02, ALAPscheduler);*/
 
     
    
