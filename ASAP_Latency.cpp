@@ -30,7 +30,7 @@ void ASAP_L::schedule(Circuit& circuit) {
     }
 
     int currentCycle = 0;
-    while (!unscheduledIndices.empty() || !ongoingGates.empty()) {
+    while (!unscheduledIndices.empty() ) {
         // 更新正在执行的门的状态
         updateOngoingGates(currentCycle);
 

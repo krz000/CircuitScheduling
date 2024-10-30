@@ -62,9 +62,9 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
         }
     }
 
-    int finalCycle = std::max(maxCycleInOnePath, gate->getScheduledCycle());
+    int finalCycle = std::max(maxCycleInOnePath, gate->getScheduledCycle());//存储最初的输出门的cycle数
     
-    int finalOtherCycle ;
+    int finalOtherCycle ;//存储除输出以外的门的cycle数
     if (gate->getScheduledCycle() == -1) {
         finalOtherCycle = finalCycle;//若是第一次，则cycle数为-1，则不需要取小
     }
@@ -72,6 +72,15 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
     {
         finalOtherCycle = std::min(maxCycleInOnePath, gate->getScheduledCycle());//若是第二次及以上发现同一gate，则需要取小
     }
+    //输出门需要先添加
+    if (std::find(outputs.begin(), outputs.end(), gate->getOutput()) != outputs.end())
+
+    {
+        return finalCycle + delay;
+    }
+
+
+
     // 更新门的调度周期
     if (finalCycle == -1) {
         //gate->setScheduledCycle(minCycle);//如果gate的cycle为-1，那么gate的cycle为-1，表示输入门
@@ -87,14 +96,9 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
     
     // 处理重复的门
     auto& gatesWithCycles = getScheduledGatesWithCycles();
-    //不是输出门需要先添加
-    if (std::find(outputs.begin(), outputs.end(), gate->getOutput()) != outputs.end())
-
-    {
-        return finalCycle + delay;
-    }
-        // 将当前门添加到对应周期
-        gatesWithCycles[gate->getScheduledCycle()].push_back(gate);
+   
+    // 将当前门添加到对应周期
+    gatesWithCycles[gate->getScheduledCycle()].push_back(gate);
     
     int  reptGatesNum =0;//重复的gate数
 
@@ -104,6 +108,11 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
         auto gateIt = std::find_if(gatesInCycle.begin(), gatesInCycle.end(),
             [gate](const Gate* g) { return g->getOutput() == gate->getOutput(); });
 
+        // 假设Gate是一个类，gatesInCycle是一个包含Gate*指针的容器
+        std::vector<const Gate*> reptGates;
+        std::copy_if(gatesInCycle.begin(), gatesInCycle.end(), std::back_inserter(reptGates),
+            [gate](const Gate* g) { return g->getOutput() == gate->getOutput(); });
+        reptGatesNum = reptGates.size();
        
        if (gateIt != gatesInCycle.end()) {
             if (it->first >gate->getScheduledCycle()) {
@@ -118,8 +127,10 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
                 }
             }
             else if(it->first == gate->getScheduledCycle()){
-                reptGatesNum++;
-
+                while (reptGatesNum != 1) {
+                    gatesInCycle.erase(gateIt);
+					reptGatesNum--;
+                }
             }
         }
        else {
@@ -127,23 +138,23 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
        }
         ++it;
     }
-    //处理在同一级cycle重复的gate
-    if (reptGatesNum > 1)
-    {
-        for (auto it = gatesWithCycles.begin(); it != gatesWithCycles.end();) {
-            auto& gatesInCycle = it->second;
-            auto gateIt = std::find_if(gatesInCycle.begin(), gatesInCycle.end(),
-                [gate](const Gate* g) { return g->getOutput() == gate->getOutput(); });
+ //   //处理在同一级cycle重复的gate
+ //   if (reptGatesNum > 1)
+ //   {
+ //       for (auto it = gatesWithCycles.begin(); it != gatesWithCycles.end();) {
+ //           auto& gatesInCycle = it->second;
+ //           auto gateIt = std::find_if(gatesInCycle.begin(), gatesInCycle.end(),
+ //               [gate](const Gate* g) { return g->getOutput() == gate->getOutput(); });
 
-            if (gateIt != gatesInCycle.end()) {
-               
-                if(it->first == gate->getScheduledCycle() ){
-                    gatesInCycle.erase(gateIt);
-                }
-            }
-            ++it;
-        }
-	}
+ //           if (gateIt != gatesInCycle.end()) {
+ //              
+ //               if(it->first == gate->getScheduledCycle() ){
+ //                   gatesInCycle.erase(gateIt);
+ //               }
+ //           }
+ //           ++it;
+ //       }
+	//}
 
     return finalOtherCycle+delay;
 }
