@@ -6,12 +6,12 @@
 
 int main() {
     Circuit verilog;
-	std::cout << "请输入BLIF文件名" << std::endl;
-    std::string blifFile;
-    std::cin >> blifFile;
-	std::string verilogFile = blifFile + ".v";
-    //std::string blifFile = "test1.blif";//TODO
-    //std::string verilogFile = "test1.v";
+	//std::cout << "请输入BLIF文件名" << std::endl;
+    //std::string blifFile;
+    //std::cin >> blifFile;
+	//std::string verilogFile = blifFile + ".v";
+    std::string blifFile = "03.txt";//TODO
+    std::string verilogFile = "test1.v";
     
     parseBLIF(blifFile, verilog);
     writeVerilog(verilogFile, verilog);
@@ -44,14 +44,14 @@ int main() {
 
     // TEST MR_LCS
     // 输入目的 cycle
-    int targetCycle;
-	std::cout << "请输入目的cycle" << std::endl;
-    std::cin >> targetCycle;
-    MR_LCS mr_lcsScheduler;
-	mr_lcsScheduler.schedule(verilog);
-	mr_lcsScheduler.MR_LCSscheduleBF(verilog, targetCycle);
-	verilog.printSchedule(verilog, mr_lcsScheduler);
-	std::cout << "MR_LCS 对于 cycle = " + targetCycle << "所需资源数: " + mr_lcsScheduler.getResourseNum() << std::endl;
+ //   int targetCycle;
+	//std::cout << "请输入目的cycle" << std::endl;
+ //   std::cin >> targetCycle;
+ //   MR_LCS mr_lcsScheduler;
+	//mr_lcsScheduler.schedule(verilog);
+	//mr_lcsScheduler.MR_LCSscheduleBF(verilog, targetCycle);
+	//verilog.printSchedule(verilog, mr_lcsScheduler);
+	//std::cout << "MR_LCS 对于 cycle = " + targetCycle << "所需资源数: " + mr_lcsScheduler.getResourseNum() << std::endl;
 
     return 0;
 }

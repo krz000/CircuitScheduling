@@ -114,17 +114,20 @@ int ALAP::scheduleGate(Circuit& circuit, const std::string& gateName, int curren
         int maxInputCycle = -1;
         for (const auto& input : gate.getInputs()) {
             int inputCycle = scheduleGate(circuit, input, currentCycle - 1);
+			//maxInputCycle = std::max(std::max(maxInputCycle, inputCycle), currentCycle - 2);
             maxInputCycle = std::max(std::max(maxInputCycle, inputCycle), gate.getScheduledCycle());
         }
 
         // 调度当前门
 		int scheduledCycle = std::min(currentCycle, maxInputCycle + 1);
-		if (gate.getScheduledCycle() == -1) {
-            scheduledCycle = std::min(currentCycle, maxInputCycle + 1);
-        } else{
-			scheduledCycle = std::min(std::min(currentCycle, maxInputCycle + 1), gate.getScheduledCycle());
-        }
-        
+		//if (gate.getScheduledCycle() == -1) {
+  //          //if (gate.)
+  //          scheduledCycle = std::max(currentCycle, maxInputCycle);
+  //      } else{
+		//	scheduledCycle = std::max(std::max(currentCycle, maxInputCycle + 1), gate.getScheduledCycle());
+  //      }
+		scheduledCycle = std::min(maxInputCycle + 1, currentCycle);
+
         gate.setScheduledCycle(scheduledCycle);
         gate.setScheduled(false);
 		//对于重复的gate，删除gate再添加gate

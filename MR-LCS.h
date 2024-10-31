@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef MR-LCS_H
-#define MR-LCS_H
+#ifndef MR_LCS_H
+#define MR_LCS_H
 
 #include "Circuit.h"
 #include <algorithm>

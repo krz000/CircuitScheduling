@@ -12,6 +12,22 @@
 * 
 * 
 * 
+* 首先看有没有某一类型的门，有才资源赋值1，否则0
+* 
+* asap得到最早使用的cycle
+* alap得到最晚的cycle，同时也作为优先级，越小越优先
+* 相等的就是确定的gate，不相等的就是浮动gate，按照alap的cycle降序排列
+* 
+* 填入need资源矩阵：
+* col = cycle，row = gateType
+* 最早-最晚之间，在对应的type加一
+* 确定的门使得需求资源++，范围：col = cycle 从currentCycle到gateType + currentCycle
+* 
+* 尝试将浮动塞入需求矩阵，
+* 需求+=1，如果超过资源数，就cycle++
+* 如果不超过，则确定为这一周期
+* 如果cycle==alap的cycle，则该资源++
+* 
 */
 
 void MR_LCS::schedule(Circuit& circuit) {
@@ -36,6 +52,7 @@ void MR_LCS::MR_LCSscheduleBF(Circuit& circuit, int timeLimit) {
 
     if (minCycle > timeLimit) {
         //报错
+		throw std::runtime_error("无法在给定时间限制内完成调度");
     }
 
     //遍历所有门保存数量
@@ -60,7 +77,7 @@ void MR_LCS::MR_LCSscheduleBF(Circuit& circuit, int timeLimit) {
     }
 
     //int cycle = ML_RCS(resourseNum);
-    if (cycle <= timeLimit);
+    //if (cycle <= timeLimit);
 	// 确定资源数
 
     // 从最小资源数开始尝试
@@ -87,8 +104,9 @@ void MR_LCS::MR_LCSscheduleBF(Circuit& circuit, int timeLimit) {
                 if (!valid) continue;
 
                 // 检查当前分配是否满足目标周期
-                int cycle = ML_RCS(currentAlloc);
-                if (cycle <= targetCycle) {
+                //int cycle = ML_RCS(currentAlloc);
+				int cycle = 0;
+                if (cycle <= timeLimit) {
                     found = true;
                     bestAllocation = currentAlloc;
                     break;
