@@ -55,7 +55,7 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
             curCycle -= inputDelay;//当前门cycle数为下一层（越靠近输出的层）的cycle数减去当前门的延迟
             int inputCycle = scheduleGate(circuit, &inputGate, curCycle);
             //用以处理同一路径一门的cycle数，尽量将同一路径的cycle往靠近输出方向调度
-            maxCycleInOnePath = std::max(curCycle, inputCycle);
+            maxCycleInOnePath = std::max(currentCycle, inputCycle);
         }
         catch (const std::runtime_error& e) {
             continue;
@@ -138,23 +138,7 @@ int ALAP_L::scheduleGate(Circuit& circuit, Gate* gate, int currentCycle) {
        }
         ++it;
     }
- //   //处理在同一级cycle重复的gate
- //   if (reptGatesNum > 1)
- //   {
- //       for (auto it = gatesWithCycles.begin(); it != gatesWithCycles.end();) {
- //           auto& gatesInCycle = it->second;
- //           auto gateIt = std::find_if(gatesInCycle.begin(), gatesInCycle.end(),
- //               [gate](const Gate* g) { return g->getOutput() == gate->getOutput(); });
-
- //           if (gateIt != gatesInCycle.end()) {
- //              
- //               if(it->first == gate->getScheduledCycle() ){
- //                   gatesInCycle.erase(gateIt);
- //               }
- //           }
- //           ++it;
- //       }
-	//}
+ 
 
     return finalOtherCycle+delay;
 }
