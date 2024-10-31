@@ -1,18 +1,43 @@
 #include "ML_RCS.h"
 #include "Circuit.h"
 #include <algorithm>
-/*
+#include <numeric>
+
 MLRCSScheduler::MLRCSScheduler(int and_gates, int or_gates, int not_gates)
     : resources{ and_gates, or_gates, not_gates }, currentCycle(0) {}
 
 void MLRCSScheduler::schedule(Circuit& circuit) {
-    std::vector<Gate>& gates = circuit.getGates();
+    std::vector<Gate>& unScheduledGates = circuit.getGates();
     currentCycle = 0;
 
-    while (!gates.empty() || !ongoingGates.empty()) {
+    // 初始化未调度索引
+    std::vector<size_t> unscheduledIndices;
+    unscheduledIndices.resize(unScheduledGates.size());
+    std::iota(unscheduledIndices.begin(), unscheduledIndices.end(), 0);
+
+    // 首先处理输入门
+    const auto& circuitInputs = circuit.getInputs();
+    for (auto it = unscheduledIndices.begin(); it != unscheduledIndices.end();) {
+        Gate& gate = unScheduledGates[*it];
+        if (gate.getInputs().empty() ||
+            std::find(circuitInputs.begin(), circuitInputs.end(), gate.getOutput()) != circuitInputs.end()) {
+            // 对于输入门，设置特殊的调度周期和状态
+            gate.setScheduled(true);
+            gate.setScheduledCycle(-1);  // 或者设置为0
+            getScheduledGatesWithCycles()[-1].push_back(&gate);  // 将输入门放在特殊的周期-1中
+            it = unscheduledIndices.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+    while (!unScheduledGates.empty() ) {
+
+       
+
         updateOngoingGates();
-        updateReadyGates(gates);
-        scheduleGates(gates);
+        updateReadyGates(unScheduledGates);
+        scheduleGates(unScheduledGates);
         currentCycle++;
     }
 }
@@ -108,4 +133,4 @@ void MLRCSScheduler::incrementResources(const Gate& gate) {
     case GateType::OR: resources.or_gates++; break;
     case GateType::NOT: resources.not_gates++; break;
     }
-}*/
+}
