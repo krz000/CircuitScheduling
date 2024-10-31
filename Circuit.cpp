@@ -32,6 +32,7 @@ void Circuit::addWire(const std::string& wire) {
     wires.push_back(wire);
 }
 
+
 std::vector<Gate>& Circuit::getGates() {
     return gates;
 }
