@@ -1,5 +1,36 @@
 #include "Circuit.h"
+/*
+现在需要处理的问题是：
+blif文件中的.name格式，正常来说，
+.names a d g
+1- 1
+-1 1
+.names a c h
+11 1
+.names c i
+0 1
+这些分别代表或门| 与门& 非门！
+如果在一个.name中出现多个门比如
+.names a d g
+11 1
+-1 1
+.names a c h
+10 1
+分别代表
+g=a&d|d其实等价于d 不用处理？
 
+h=a&!c
+
+.names a d g
+11 1
+01 1
+g=a&d|!a&d 等价于d
+.names a d g
+10 1
+01 1
+g=a&!d|!a&d 
+
+*/
 // 解析 .blif 文件
 void parseBLIF(const std::string& filename, Circuit& verilog) {
     std::ifstream inblif(filename);
@@ -59,6 +90,8 @@ void parseBLIF(const std::string& filename, Circuit& verilog) {
 
             while (std::getline(inblif, line) && !line.empty() && (isdigit(line[0]) || line[0] == '-')) {
                 if (line.size() < vars.size()) continue;
+                //TODO
+
                 std::string expr;
                 bool first = true;
                 for (size_t i = 0; i < vars.size(); ++i) {
