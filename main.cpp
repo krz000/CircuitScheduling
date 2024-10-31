@@ -3,6 +3,7 @@
 #include "ASAP.h"
 #include"ALAP_Latency.h"
 #include"ASAP_Latency.h"
+#include"ML_RCS.h"
 
 int main() {
 
@@ -16,21 +17,29 @@ int main() {
 
     std::cout << "转换完成" << std::endl;
 
-    ALAP_L al;
+  /*  ALAP_L al;
 
     al.ALAP_Lschedule(verilog);
-    verilog.printSchedule(verilog, al);
+    verilog.printSchedule(verilog, al);*/
+
+   /* MLRCSScheduler ml(1, 1, 1);
+    ml.schedule(verilog);
+    verilog.printSchedule(verilog, ml);*/
 
     //TEST sample02
     Circuit verilog02;
-    std::string blifFile02 = "sample04.blif";//TODO
-    std::string verilogFile02 = "sample04.v";
+    std::string blifFile02 = "sample03.blif";//TODO
+    std::string verilogFile02 = "sample03.v";
 
     parseBLIF(blifFile02, verilog02);
     writeVerilog(verilogFile02, verilog02);
 
     std::cout << "转换完成02" << std::endl;
 
+
+    MLRCSScheduler ml(1, 1, 1);
+    ml.schedule(verilog02);
+    verilog.printSchedule(verilog02, ml);
     /*ALAP al02;
     al02.schedule(verilog02);
     al02.ALAPschedule(verilog02);
@@ -48,6 +57,8 @@ int main() {
     ALAP_L alap_l;
     alap_l.ALAP_Lschedule(verilog02);
     verilog02.printSchedule(verilog02, alap_l);
+
+  
 
 
    /* ASAPScheduler asapScheduler;
