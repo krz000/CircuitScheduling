@@ -63,19 +63,40 @@ void MR_LCS::MR_LCSscheduleBF(Circuit& circuit, int timeLimit) {
     if (cycle <= timeLimit);
 	// 确定资源数
 
-    int index = 0;
-    //资源由小到大，轮次则由大到小
-    //轮次正好小于等于限制，即为最小资源
-    while (cycle <= timeLimit) {
-        //尝试增加资源
-        if (needGate[index]) ++resourseNum[index];
-        int tmp = MLRCS(resourseNum);
-        //增加资源有效，或者 非递减 ，覆写cycle
-        if (tmp <= cycle) cycle = tmp;
-        //无效，撤回增加资源
-        else --resourseNum[index];
-        //索引自增（循环）
-        index = ++index % resourseNum.size();
+    // 从最小资源数开始尝试
+    int totalResource = 3; // 最少每种门1个资源
+    bool found = false;
+    std::array<int, 3> bestAllocation = { 1, 1, 1 };
+
+    while (!found) {
+        // 尝试当前总资源数的所有分配方案
+        for (int and_res = 1; and_res <= totalResource - 2; ++and_res) {
+            for (int or_res = 1; or_res <= totalResource - and_res - 1; ++or_res) {
+                int not_res = totalResource - and_res - or_res;
+                if (not_res < 1) continue;
+
+                std::array<int, 3> currentAlloc = { and_res, or_res, not_res };
+                // 跳过不需要的门类型
+                bool valid = true;
+                for (int i = 0; i < 3; ++i) {
+                    if (!needGate[i] && currentAlloc[i] > 0) {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (!valid) continue;
+
+                // 检查当前分配是否满足目标周期
+                int cycle = ML_RCS(currentAlloc);
+                if (cycle <= targetCycle) {
+                    found = true;
+                    bestAllocation = currentAlloc;
+                    break;
+                }
+            }
+            if (found) break;
+        }
+        if (!found) totalResource++;
     }
 
 }
