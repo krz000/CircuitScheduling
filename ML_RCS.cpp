@@ -46,14 +46,14 @@ void MLRCSScheduler::scheduleGates(std::vector<Gate>& gates) {
     // 使用已保存的ALAP调度结果进行排序
     auto findCycle = [this](Gate* gate) {
         if (!gate) {
-            std::cerr << "Warning: Null gate pointer in findCycle" << std::endl;
+            
             return INT_MAX;
         }
 
-        std::cout << "Finding cycle for gate: " << gate->getOutput() << std::endl;
+       
 
         if (!alapSchedule) {
-            std::cerr << "Error: ALAP schedule is null" << std::endl;
+           
             return INT_MAX;
         }
 
@@ -63,43 +63,41 @@ void MLRCSScheduler::scheduleGates(std::vector<Gate>& gates) {
                     return g && gate && g->getOutput() == gate->getOutput();
                 });
             if (it != pair.second.end()) {
-                std::cout << "Found gate " << gate->getOutput() << " in cycle " << pair.first << std::endl;
+                
                 return pair.first;
             }
         }
 
-        std::cout << "Gate " << gate->getOutput() << " not found in ALAP schedule" << std::endl;
+       
         return INT_MAX;
         };
 
     // 使用本地函数进行比较
     auto compareByCycle = [&findCycle](Gate* a, Gate* b) {
         if (!a || !b) {
-            std::cerr << "Warning: Null gate pointer in comparison" << std::endl;
+           
             return false;
         }
 
         int cycleA = findCycle(a);
         int cycleB = findCycle(b);
 
-        std::cout << "Comparing gates - A: " << a->getOutput()
-            << " (cycle " << cycleA << ") with B: "
-            << b->getOutput() << " (cycle " << cycleB << ")" << std::endl;
+       
 
         return cycleA < cycleB;
         };
 
     // 对非空的门列表进行排序
     if (!readyAndGates.empty()) {
-        std::cout << "Sorting AND gates, count: " << readyAndGates.size() << std::endl;
+        
         std::sort(readyAndGates.begin(), readyAndGates.end(), compareByCycle);
     }
     if (!readyOrGates.empty()) {
-        std::cout << "Sorting OR gates, count: " << readyOrGates.size() << std::endl;
+       
         std::sort(readyOrGates.begin(), readyOrGates.end(), compareByCycle);
     }
     if (!readyNotGates.empty()) {
-        std::cout << "Sorting NOT gates, count: " << readyNotGates.size() << std::endl;
+       
         std::sort(readyNotGates.begin(), readyNotGates.end(), compareByCycle);
     }
 

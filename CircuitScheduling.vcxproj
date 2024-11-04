@@ -131,6 +131,7 @@
     <ClCompile Include="ASAP.cpp" />
     <ClCompile Include="Circuit.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ML_RCS.cpp" />
     <ClCompile Include="MR-LCS.cpp" />
     <ClCompile Include="parceBlif.cpp" />
     <ClCompile Include="writeVerilog.cpp" />
@@ -139,6 +140,8 @@
     <ClInclude Include="ALAP.h" />
     <ClInclude Include="ASAP.h" />
     <ClInclude Include="Circuit.h" />
+    <ClInclude Include="Hu.h" />
+    <ClInclude Include="ML_RCS.h" />
     <ClInclude Include="MR-LCS.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
