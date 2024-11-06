@@ -1,16 +1,50 @@
 #include "ML_RCS.h"
 #include "Circuit.h"
 #include <algorithm>
+#include <numeric>
 
 MLRCSScheduler::MLRCSScheduler(int and_gates, int or_gates, int not_gates)
     : resources{ and_gates, or_gates, not_gates }, currentCycle(0) {}
 
+void MLRCSScheduler::schedule(Circuit& circuit) {
+    std::vector<Gate>& unScheduledGates = circuit.getGates();
+    currentCycle = 0;
 
+    // 初始化未调度索引
+    std::vector<size_t> unscheduledIndices;
+    unscheduledIndices.resize(unScheduledGates.size());
+    std::iota(unscheduledIndices.begin(), unscheduledIndices.end(), 0);
 
-void MLRCSScheduler::updateReadyGates(const std::vector<Gate>& gates, Circuit& circuit) {
-    readyGates.clear();
+    // 首先处理输入门
+    const auto& circuitInputs = circuit.getInputs();
+    for (auto it = unscheduledIndices.begin(); it != unscheduledIndices.end();) {
+        Gate& gate = unScheduledGates[*it];
+        if (gate.getInputs().empty() ||
+            std::find(circuitInputs.begin(), circuitInputs.end(), gate.getOutput()) != circuitInputs.end()) {
+            // 对于输入门，设置特殊的调度周期和状态
+            gate.setScheduled(true);
+            gate.setScheduledCycle(-1);  // 或者设置为0
+            getScheduledGatesWithCycles()[-1].push_back(&gate);  // 将输入门放在特殊的周期-1中
+            it = unscheduledIndices.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+    while (!unScheduledGates.empty() ) {
+
+       
+
+        updateOngoingGates();
+        updateReadyGates(unScheduledGates);
+        scheduleGates(unScheduledGates);
+        currentCycle++;
+    }
+}
+
+void MLRCSScheduler::updateReadyGates(const std::vector<Gate>& gates) {
     for (const Gate& gate : gates) {
-        if (!gate.isScheduled() && areAllPredecessorsFinished(gate,circuit)) {
+        if (!gate.isScheduled() && areAllPredecessorsScheduled(gate, circuit)) {
             readyGates.push_back(const_cast<Gate*>(&gate));
         }
     }
@@ -30,15 +64,20 @@ void MLRCSScheduler::updateOngoingGates() {
 }
 
 void MLRCSScheduler::scheduleGates(std::vector<Gate>& gates) {
-   
+    std::sort(readyGates.begin(), readyGates.end(),
+        [this](Gate* a, Gate* b) { return getGateDelay(*a) > getGateDelay(*b); });
 
-    // 按类型分组就绪门
-    std::vector<Gate*> readyAndGates, readyOrGates, readyNotGates;
-    for (Gate* gate : readyGates) {
-        switch (gate->getType()) {
-        case GateType::AND: readyAndGates.push_back(gate); break;
-        case GateType::OR: readyOrGates.push_back(gate); break;
-        case GateType::NOT: readyNotGates.push_back(gate); break;
+    for (auto it = readyGates.begin(); it != readyGates.end();) {
+        Gate* gate = *it;
+        if (canScheduleGate(*gate)) {
+            gate->setScheduled(true);
+            gate->setScheduledCycle(currentCycle);
+            ongoingGates.push_back(gate);
+            getScheduledGatesWithCycles()[currentCycle].push_back(gate);
+            decrementResources(*gate);
+            it = readyGates.erase(it);
+            gates.erase(std::remove_if(gates.begin(), gates.end(),
+                [gate](const Gate& g) { return &g == gate; }), gates.end());
         }
     }
 
@@ -110,17 +149,13 @@ void MLRCSScheduler::scheduleGates(std::vector<Gate>& gates) {
 bool MLRCSScheduler::areAllPredecessorsFinished(const Gate& gate, Circuit& circuit) const {
     for (const std::string& inputName : gate.getInputs()) {
         try {
-            const Gate& predGate = circuit.findGateByOutput(inputName);
-            if (!predGate.isScheduled()) {
+            const Gate& inputGate = circuit.findGateByOutput(inputName);
+            if (!inputGate.isScheduled()) {
                 return false;
-            }
-            auto it = std::find_if(ongoingGates.begin(), ongoingGates.end(),
-                [&predGate](const Gate* g) { return g->getOutput() == predGate.getOutput(); });
-            if (it != ongoingGates.end()) {
-                return false;//若能找到前驱在ongoing中，则未完成
             }
         }
         catch (const std::runtime_error& e) {
+            // 输入可能是电路的主输入，不需要调度
             continue;
         }
     }
@@ -136,19 +171,14 @@ int MLRCSScheduler::getGateDelay(const Gate& gate) const {
     }
 }
 
-int MLRCSScheduler::getAvailableResources(GateType type) const
-{
-    int ongoingCount = std::count_if(ongoingGates.begin(), ongoingGates.end(),
-        [type](const Gate* g) { return g->getType() == type; });
-    switch (type) {
-    case GateType::AND: return resources.and_gates - ongoingCount;
-    case GateType::OR: return resources.or_gates - ongoingCount;
-    case GateType::NOT: return resources.not_gates - ongoingCount;
-    default: return 0;
+bool MLRCSScheduler::canScheduleGate(const Gate& gate) const {
+    switch (gate.getType()) {
+    case GateType::AND: return resources.and_gates > 0;
+    case GateType::OR: return resources.or_gates > 0;
+    case GateType::NOT: return resources.not_gates > 0;
+    default: return false;
     }
 }
-
-
 
 void MLRCSScheduler::decrementResources(const Gate& gate) {
     switch (gate.getType()) {
@@ -164,85 +194,4 @@ void MLRCSScheduler::incrementResources(const Gate& gate) {
     case GateType::OR: resources.or_gates++; break;
     case GateType::NOT: resources.not_gates++; break;
     }
-}
-
-
-void MLRCSScheduler::scheduleGatesOfType(std::vector<Gate*>& gates,
-    std::vector<Gate>& allGates, GateType type) {
-    int availableResources = getAvailableResources(type);
-
-    auto it = gates.begin();
-    while (it != gates.end() && availableResources > 0) {
-        Gate* gate = *it;
-        std::string gateOutput = gate->getOutput();  // 保存输出名称
-
-        // 调度当前门
-        gate->setScheduled(true);
-        gate->setScheduledCycle(currentCycle);
-        ongoingGates.push_back(gate);
-        getScheduledGatesWithCycles()[currentCycle].push_back(gate);
-        decrementResources(*gate);
-        availableResources--;
-
-        it = gates.erase(it);
-    }
-}
-void MLRCSScheduler::schedule(Circuit& circuit) {
-    // 保存电路引用
-    this->circuit = &circuit;
-
-
-
-    // 运行ALAP_L获取调度信息（只运行一次）
-    ALAP_L alapScheduler;
-    alapScheduler.ALAP_Lschedule(circuit);
-    alapSchedule = &alapScheduler.getScheduledGatesWithCycles();
-    
-    // 重置所有门的调度状态
-    for (auto& gate : circuit.getGates()) {
-        gate.setScheduledCycle(-1);
-        gate.setScheduled(false);
-    }
-
-    // 清除之前的调度结果
-    getScheduledGatesWithCycles().clear();
-    readyGates.clear();
-    ongoingGates.clear();
-    currentCycle = 0;
-
-  
-
-    std::vector<Gate>& unScheduledGates = circuit.getGates();
-
-    // 首先处理输入门
-    const auto& circuitInputs = circuit.getInputs();
-    for (auto& gate : unScheduledGates) {
-        if (gate.getInputs().empty() ||
-            std::find(circuitInputs.begin(), circuitInputs.end(), gate.getOutput()) != circuitInputs.end()) {
-            // 设置输入门的特殊周期和状态
-            gate.setScheduled(true);
-            gate.setScheduledCycle(-1);
-            getScheduledGatesWithCycles()[-1].push_back(&gate);
-        }
-    }
-
-    // 主调度循环
-
-    bool allGatesScheduled = false;//调度结束标志
-    while (!allGatesScheduled) {
-        // 更新正在执行的门
-        updateOngoingGates();
-
-        // 更新就绪的门
-        updateReadyGates(unScheduledGates,circuit);
-
-        // 调度就绪的门
-        scheduleGates(unScheduledGates);
-
-        //结束条件判断
-        allGatesScheduled = std::all_of(unScheduledGates.begin(), unScheduledGates.end(),
-            [](const Gate& gate) { return gate.isScheduled(); });
-        currentCycle++;
-    }
-
 }
