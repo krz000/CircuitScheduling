@@ -1,0 +1,22 @@
+.model sample03
+.inputs x y z u v w
+.outputs r s t
+.names x y z n
+111 1
+.names n u p
+1- 1
+-1 1
+.names p w q
+1- 1
+-1 1
+.names v x y m
+1-- 1
+-1- 1
+--1 1
+.names q m r
+11 1
+.names u w s
+11 1
+.names z t
+0 1
+.end

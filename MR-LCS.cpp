@@ -46,11 +46,19 @@ void MR_LCS::schedule(Circuit& circuit) {
 
 }
 
+void MR_LCS::ResetCircuit(Circuit& circuit) {
+    for (auto& gate : circuit.getGates()) {
+		gate.setScheduledCycle(-1);
+		gate.setScheduled(false);
+	}
+}
+
 void MR_LCS::MR_LCSscheduleBF(Circuit& circuit, int timeLimit) {
     // 先用ALAP_L检查无限资源下的最小周期
     ALAP_L alap;
     alap.ALAP_Lschedule(circuit);
     int minPossibleCycle = circuit.getMaxScheduledCycle() + 1;
+    ResetCircuit(circuit);
 	// 如果最小周期都无法满足时间限制，直接抛出异常
     if (minPossibleCycle > timeLimit) {
         throw std::runtime_error("无法在给定时间限制内完成调度");
@@ -124,9 +132,16 @@ std::array<int, 3> MR_LCS::MR_LCSschedule(Circuit& circuit, int timeLimit) {
     ALAP_L alap;
     alap.ALAP_Lschedule(circuit);
     int minPossibleCycle = circuit.getMaxScheduledCycle() + 1;
+    ResetCircuit(circuit);
     // 如果最小周期都无法满足时间限制，直接抛出异常
     if (minPossibleCycle > timeLimit) {
-        throw std::runtime_error("无法在给定时间限制内完成调度");
+        timeLimit = minPossibleCycle;
+		std::cout << "无法在给定时间限制内完成调度" << std::endl;
+        //throw std::runtime_error("无法在给定时间限制内完成调度");
+        //MLRCSScheduler ml(1, 1, 1);
+        //ml.schedule(circuit);
+        //circuit.printSchedule(circuit, ml);
+	    return std::array<int, 3>{-1, -1, -1};
     }
 
     // 统计所需的门类型
@@ -149,8 +164,19 @@ std::array<int, 3> MR_LCS::MR_LCSschedule(Circuit& circuit, int timeLimit) {
         if (demandGate[i]) resourseNum[i] = 1;
     }
 
-    MR_LCS_rec(circuit ,timeLimit, resourseNum, demandGate);
+    // 测试111
+    MLRCSScheduler ml(resourseNum[0], resourseNum[1], resourseNum[2]);
+    ml.schedule(circuit);
+    int cycle = circuit.getMaxScheduledCycle() + 1;
+    if (cycle <= timeLimit) goto END;
+    ResetCircuit(circuit);
+    // 还原？
+    //ALAP_L alap1;
+    //alap1.ALAP_Lschedule(circuit);
 
+    MR_LCS_rec(circuit ,timeLimit, resourseNum, demandGate);
+    goto END;
+    END:
     // 遍历所有门，将它们添加到对应周期的向量中
     for (auto& gate : circuit.getGates()) {
         int cycle = gate.getScheduledCycle();
@@ -237,13 +263,17 @@ std::array<int, 3> MR_LCS::MR_LCSschedule(Circuit& circuit, int timeLimit) {
  //   }
 }
 
+bool flag = true;
 
 void MR_LCS::MR_LCS_rec(Circuit& circuit, int limit, std::array<int, 3>& resourseNum, const std::array<bool, 3>& demandGate) {
     std::vector<std::array<int, 3>> needNum;
     for (int i = 0; i < limit; ++i) needNum.push_back({});
-    // 用ALAP找出下界cycle
-    ALAP_L alap;
-    alap.ALAP_Lschedule(circuit);
+    // 用ALAP找出下界cycle 已经调度了哦
+	//if (flag) {
+	//	ALAP_L alap;
+	//	alap.ALAP_Lschedule(circuit);
+	//	flag = false;
+    //}
 
     for (const auto& output : circuit.getOutputs()) {
 		Gate outputGate = circuit.findGateByOutput(output);
@@ -266,21 +296,21 @@ void MR_LCS::MR_LCS_rec(Circuit& circuit, int limit, std::array<int, 3>& resours
         gate.setScheduledCycle(cycle);        
 		gate.setScheduled(false); 
     }
-    //填充需求数组
+    //填充需求矩阵
     for (auto& gatePair : circuit.getGates()) {
         switch (gatePair.getType()) {
-        case GateType::AND: for (int i = 0; i < (int)GateType::AND; ++i) ++needNum[gatePair.getScheduledCycle() + i][0]; break;
-        case GateType::OR: for (int i = 0; i < (int)GateType::OR; ++i) ++needNum[gatePair.getScheduledCycle() + i][1]; break;
-        case GateType::NOT: for (int i = 0; i < (int)GateType::NOT; ++i) ++needNum[gatePair.getScheduledCycle() + i][2]; break;
-        }
+            case GateType::AND: for (int i = 0; i < (int)GateType::AND; ++i) ++needNum[gatePair.getScheduledCycle() + i][0]; break;
+            case GateType::OR: for (int i = 0; i < (int)GateType::OR; ++i) ++needNum[gatePair.getScheduledCycle() + i][1]; break;
+            case GateType::NOT: for (int i = 0; i < (int)GateType::NOT; ++i) ++needNum[gatePair.getScheduledCycle() + i][2]; break;
+        }   
     }
-    //除去浮动数
+    //除去浮动gate
     for (auto& gate : tmpGatesArray) {
 		Gate tmpgate = circuit.findGateByOutput(gate.getOutput());
         switch (gate.getType()) {
-        case GateType::AND: for (int i = 0; i < (int)GateType::AND; ++i) --needNum[tmpgate.getScheduledCycle() + i][0]; break;
-        case GateType::OR: for (int i = 0; i < (int)GateType::OR; ++i) --needNum[tmpgate.getScheduledCycle() + i][1]; break;
-        case GateType::NOT: for (int i = 0; i < (int)GateType::NOT; ++i) --needNum[tmpgate.getScheduledCycle() + i][2]; break;
+            case GateType::AND: for (int i = 0; i < (int)GateType::AND; ++i) --needNum[tmpgate.getScheduledCycle() + i][0]; break;
+            case GateType::OR: for (int i = 0; i < (int)GateType::OR; ++i) --needNum[tmpgate.getScheduledCycle() + i][1]; break;
+            case GateType::NOT: for (int i = 0; i < (int)GateType::NOT; ++i) --needNum[tmpgate.getScheduledCycle() + i][2]; break;
         }
     }
     //初步确定资源
@@ -295,47 +325,53 @@ void MR_LCS::MR_LCS_rec(Circuit& circuit, int limit, std::array<int, 3>& resours
 		Gate suc = circuit.findGateByOutput(gate.getOutput());
         int earliestStartCycle = gate.getScheduledCycle();
         int latestStartcycle = suc.getScheduledCycle();
-        //遍历浮动数可能的选择
+		// 对于电路输入门，不需要调度
+		const auto& inputs = circuit.getInputs();
+		if (std::find(inputs.begin(), inputs.end(), gate.getGateId()) != inputs.end()) {
+            tmpGatesArray.pop_back();
+			if (tmpGatesArray.size() == 0) break;
+            continue;
+        }
+        //遍历浮动gate可能的选择
         for (int i = earliestStartCycle; i < latestStartcycle; ++i) {
-            //若可先做，则：置cycle、needNum矩阵修改、弹出数组，跳出
+            //若可先做，则置cycle、needNum矩阵修改、弹出数组，跳出
             switch (gate.getType()) {
-            case GateType::AND:
-                if (needNum[i][0] + 1 <= resourseNum[0]) {
-                    suc.setScheduledCycle(i);
-					suc.setScheduled(false);
-                    for (int j = 0; j < (int)GateType::AND; ++j) ++needNum[i + j][0];
-                    tmpGatesArray.pop_back();
-                    goto OUTER;
-                }
-                else break;
-            case GateType::OR:
-                if (needNum[i][1] + 1 <= resourseNum[1]) {
-                    suc.setScheduledCycle(i);
-                    suc.setScheduled(false);
-                    for (int j = 0; j < (int)GateType::OR; ++j) ++needNum[i + j][1];
-                    tmpGatesArray.pop_back();
-                    goto OUTER;
-                }
-                else break;
-            case GateType::NOT:
-                if (needNum[i][2] + 1 <= resourseNum[2]) {
-                    suc.setScheduledCycle(i);
-                    suc.setScheduled(false);
-                    for (int j = 0; j < (int)GateType::NOT; ++j) ++needNum[i + j][2];
-                    tmpGatesArray.pop_back();
-                    goto OUTER;
-                }
-                else break;
+                case GateType::AND:
+                    if (needNum[i][0] + 1 <= resourseNum[0]) {
+                        suc.setScheduledCycle(i);
+					    suc.setScheduled(false);
+                        for (int j = 0; j < (int)GateType::AND; ++j) ++needNum[i + j][0];
+                        tmpGatesArray.pop_back();
+                        if (tmpGatesArray.size() == 0) break;
+                    }
+                    else break;
+                case GateType::OR:
+                    if (needNum[i][1] + 1 <= resourseNum[1]) {
+                        suc.setScheduledCycle(i);
+                        suc.setScheduled(false);
+                        for (int j = 0; j < (int)GateType::OR; ++j) ++needNum[i + j][1];
+                        tmpGatesArray.pop_back();
+                        if (tmpGatesArray.size() == 0) break;
+                    }
+                    else break;
+                case GateType::NOT:
+                    if (needNum[i][2] + 1 <= resourseNum[2]) {
+                        suc.setScheduledCycle(i);
+                        suc.setScheduled(false);
+                        for (int j = 0; j < (int)GateType::NOT; ++j) ++needNum[i + j][2];
+                        tmpGatesArray.pop_back();
+                        if (tmpGatesArray.size() == 0) break;
+                    }
+                    else break;
             }
         }
         //不可则加资源
         switch (gate.getType()) {
-        case GateType::AND: ++resourseNum[0]; break;
-        case GateType::OR: ++resourseNum[1]; break;
-        case GateType::NOT: ++resourseNum[2]; break;
+            case GateType::AND: ++resourseNum[0]; break;
+            case GateType::OR: ++resourseNum[1]; break;
+            case GateType::NOT: ++resourseNum[2]; break;
+		    case GateType::UNKOWN: break;
         }
-    OUTER:
-        if (tmpGatesArray.size() == 0) break;
     }
 }
 

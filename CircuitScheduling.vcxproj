@@ -128,8 +128,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ALAP.cpp" />
+    <ClCompile Include="ALAP_Latency.cpp" />
     <ClCompile Include="ASAP.cpp" />
+    <ClCompile Include="ASAP_Latency.cpp" />
     <ClCompile Include="Circuit.cpp" />
+    <ClCompile Include="HU.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ML_RCS.cpp" />
     <ClCompile Include="MR-LCS.cpp" />
@@ -138,7 +141,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ALAP.h" />
+    <ClInclude Include="ALAP_Latency.h" />
     <ClInclude Include="ASAP.h" />
+    <ClInclude Include="ASAP_Latency.h" />
     <ClInclude Include="Circuit.h" />
     <ClInclude Include="Hu.h" />
     <ClInclude Include="ML_RCS.h" />

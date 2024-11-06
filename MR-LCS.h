@@ -10,6 +10,7 @@
 class MR_LCS : public Scheduler {
 public:
 	void schedule(Circuit& circuit) override;
+	void ResetCircuit(Circuit& circuit);
 	std::array<int, 3> MR_LCSschedule(Circuit& circuit, int timeLimit);
 	void MR_LCSscheduleBF(Circuit& circuit, int timeLimit);
 	//int resourceLimit;

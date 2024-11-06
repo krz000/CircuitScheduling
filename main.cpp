@@ -9,13 +9,13 @@
 int main() {
     Circuit verilog;
 
-    //std::cout << "请输入BLIF文件名" << std::endl;
-    //std::string blifFile;
-    //std::cin >> blifFile;
-    //std::string verilogFile = blifFile + ".v";
+    std::cout << "please input the file name: " << std::endl;
+    std::string blifFile;
+    std::cin >> blifFile;
+    std::string verilogFile = blifFile + ".v";
     // 
-    //std::string blifFile = "03.txt";//TODO
-    //std::string verilogFile = "test1.v";
+    //std::string blifFile = "test3.blif";//TODO
+    //std::string verilogFile = "test3.v";
 
     //parseBLIF(blifFile, verilog);
     //writeVerilog(verilogFile, verilog);
@@ -24,8 +24,8 @@ int main() {
 
     //TEST sample1
 
-    std::string blifFile = "test1.blif";//TODO
-    std::string verilogFile = "test1.v";
+    //std::string blifFile = "test1.blif";//TODO
+    //std::string verilogFile = "test1.v";
     
     parseBLIF(blifFile, verilog);
     writeVerilog(verilogFile, verilog);
@@ -54,16 +54,26 @@ int main() {
     //TEST MR_LCS
     //输入目的 cycle
     int targetCycle;
-    std::cout << "请输入目的cycle" << std::endl;
+    std::cout << "please input limit cycle:" << std::endl;
     std::cin >> targetCycle;
     MR_LCS mr_lcsScheduler;
     //mr_lcsScheduler.schedule(verilog);
     //mr_lcsScheduler.MR_LCSscheduleBF(verilog, targetCycle);
     std::array<int, 3> res = mr_lcsScheduler.MR_LCSschedule(verilog, targetCycle);
-    //verilog.printSchedule(verilog, mr_lcsScheduler);
-    std::cout << "MR_LCS 对于 cycle = " + targetCycle << std::endl; 
+	if (res[0] == -1 ) {
+        MLRCSScheduler ml(1, 1, 1);
+        ml.schedule(verilog);
+        verilog.printSchedule(verilog, ml);
+        //std::cout << "无法在" << targetCycle << "周期内完成" << std::endl;
+    }
+    else {
+		verilog.printSchedule(verilog, mr_lcsScheduler); 
+    }
+
+    // std::cout << "MR_LCS对于cycle = " + targetCycle << std::endl; 
+	// std::cout << "" << targetCycle << "所需资源数: " << mr_lcsScheduler.getResourseNum() << std::endl;
     // 输出门的个数
-    std::cout << "门调度结果 (MR_LCS):" << std::endl;
+    //std::cout << "门调度结果 (MR_LCS):" << std::endl;
     std::cout << "\t" << "&" << "\t" << "|" << "\t" << "!" << std::endl;
     std::cout << "\t" << res[0] << "\t" << res[1] << "\t" << res[2] << std::endl;
 
@@ -98,10 +108,10 @@ int main() {
 
   
 	//TEST ALAP
-    ALAP ALAPscheduler;
-	ALAPscheduler.schedule(verilog);
-    ALAPscheduler.ALAPschedule(verilog);
-    verilog.printSchedule(verilog, ALAPscheduler);
+ //   ALAP ALAPscheduler;
+	//ALAPscheduler.schedule(verilog);
+ //   ALAPscheduler.ALAPschedule(verilog);
+ //   verilog.printSchedule(verilog, ALAPscheduler);
     
     /* ALAP答案
     Input :a ,b ,c ,d ,e ,f   Output :o ,p ,q
